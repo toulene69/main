@@ -1,0 +1,26 @@
+{
+  "name": "main",
+  "version": "1.0.0",
+  "description": "The main project repository for the new social network ",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index",
+    "dev": "nodemon index"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/toulene69/main.git"
+  },
+  "author": "Apoorv Anurag",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/toulene69/main/issues"
+  },
+  "homepage": "https://github.com/toulene69/main#readme",
+  "dependencies": {
+    "express": "^4.17.1"
+  },
+  "devDependencies": {
+    "nodemon": "^1.19.3"
+  }
+}
