@@ -15,18 +15,12 @@ app.use(bodyParser.urlencoded({
  app.use(bodyParser.json());
 
 
- const apiRoutes = require('./routers');
+ const api_router = require('./api/api_router');
+ app.use('/api/', api_router);
 
- app.use('/api/v1', apiRoutes);
- 
  app.get('/', (req, res) => {
-     var masterDb = database.get().db('master');
- 
-     console.log(masterDb);
      res.send("Hello World!!!!");
  });
-
-
 
 const PORT = process.env.PORT || 8000;
 
@@ -42,3 +36,5 @@ database.startDB( function(err) {
         app.listen(PORT, () => logger.info(`*******  Server started on post ${PORT}  *******`)) ;
     }
 });
+
+// app.listen(PORT, () => logger.info(`*******  Server started on post ${PORT}  *******`)) ;
