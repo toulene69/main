@@ -10,3 +10,5 @@ https://github.com/am-MongoDB/MongoDB-Mongopop/blob/master/javascripts/db.js
 https://solidgeargroup.com/refresh-token-with-jwt-authentication-node-js/
 
 https://deploybot.com/blog/guest-post-how-to-set-up-and-deploy-nodejs-express-application-for-production
+
+https://hackernoon.com/understanding-promises-in-javascript-13d99df067c1

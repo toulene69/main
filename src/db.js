@@ -1,10 +1,11 @@
 const logger = require('../config/logger');
 const MongoClient1 = require('mongodb').MongoClient
 const MongoClient2 = require('mongodb').MongoClient
+const assert = require('assert');
 
 // databases connection
-const state = {
-
+let state = {
+    client : null,
     master : null,
     vault : null,
 };
@@ -13,11 +14,11 @@ const URI = 'mongodb+srv://apoorv:Parliament%2328@cluster0-ynvky.mongodb.net?ret
 const masterURI = 'mongodb+srv://apoorv:Parliament%2328@cluster0-ynvky.mongodb.net/master?retryWrites=true&w=majority';
 const vaultURI = 'mongodb+srv://apoorv:Parliament%2328@cluster0-ynvky.mongodb.net/vault?retryWrites=true&w=majority';
 
-exports.startDB = function(result) {
+function startDB(result) {
     var collect = [];
     if(state.master == null) {
         promise1 = new Promise(  (resolve, reject)=> {
-            MongoClient1.connect(masterURI,{ useNewUrlParser: true, useUnifiedTopology: true }, function(err, db) {
+            MongoClient1.connect(URI,{ useNewUrlParser: true, useUnifiedTopology: true }, function(err, client) {
                 if (err){
                     logger.error("Error in master db connection...");
                     logger.error(err);
@@ -25,7 +26,7 @@ exports.startDB = function(result) {
                 } 
                 else {
                     logger.info("master db connected...");
-                    state.master = db;
+                    state.master = client.db('master');
                     resolve();
                 }
             });
@@ -34,7 +35,7 @@ exports.startDB = function(result) {
     }
     if(state.vault == null) {
         promise2 = new Promise( (resolve, reject) => {
-            MongoClient2.connect(vaultURI,{ useNewUrlParser: true, useUnifiedTopology: true }, function(err, db) {
+            MongoClient2.connect(URI,{ useNewUrlParser: true, useUnifiedTopology: true }, function(err, client) {
                 if (err){
                     logger.error("Error in vault db connection...");
                     logger.error(err);
@@ -42,7 +43,8 @@ exports.startDB = function(result) {
                 } 
                 else {
                     logger.info("vault db connected...");
-                    state.vault = db;
+                    state.vault = client.db('vault');
+                    state.client = client;
                     resolve();
                 }
             });
@@ -60,12 +62,25 @@ exports.startDB = function(result) {
     });
 };
 
-exports.getMasterDB = function() {
+ function getMasterDB() {
+    assert.ok(state.master, "Master DB is not initialized...");
     return state.master
 };
 
-exports.getVaultDB = function() {
+function getVaultDB() {
+    assert.ok(state.vault, "Vault DB is not initialized...");
     return state.vault;
+};
+
+function getMongoClient() {
+    return state.client;
+}
+
+module.exports = {
+    startDB,
+    getMasterDB,
+    getVaultDB,
+    getMongoClient,
 };
 
 // const close = function(done) {
