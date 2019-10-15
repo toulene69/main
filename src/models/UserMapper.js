@@ -20,7 +20,12 @@ async function addUserMapper(userMapper) {
 async function getUserIdFromUid(uid) {
     try {
         let userMapper = await dataAccess.findUserMapper(uid);
-        return userMapper.id;
+        if(userMapper !== null) {
+            return userMapper.id;
+        }
+        else {
+            return null;
+        }
     } catch (e) {
         throw e;
     }
@@ -30,7 +35,7 @@ async function getUserMapperFromId(id){
     try {
         let userMapper = await dataAccess.findUserMapperFromId(id);
         if(userMapper){
-            return userMapper.id;
+            return userMapper;
         } else {
             return null;
         }
