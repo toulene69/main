@@ -34,24 +34,28 @@ api_router.post('/register', function(req, res) {
 });
 
 api_router.post('/login', function(req,res){
-    try {
-        account.loginUser(req.body).then(val => {
-            if(val.success) {
-                res.status(200).send(val);
-            }
-            else {
-                res.status(500).send(val);
-            }
-        }).catch(e => {
-            res.status(500).send(e);
-        });
-    } catch (e) {
+    account.loginUser(req.body).then(val => {
+        if(val.success) {
+            res.status(200).send(val);
+        }
+        else {
+            res.status(500).send(val);
+        }
+    }).catch(e => {
         res.status(500).send(e);
-    }
+    });
 });
 
-api_router.post('/logout', function(req, res){
-
+api_router.post('/logout', passport.authenticate('jwt', { session : false }), function(req, res){
+    account.logoutUser(req).then(val => {
+        if(val.success) {
+            res.status(200).send(val);
+        } else {
+            res.status(404).send(val);
+        }
+    }).catch(e => {
+        res.status(500).send(e);
+    });
 });
 
 

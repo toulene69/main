@@ -1,11 +1,13 @@
 const dataAccess = require('../dao/DataAccess');
 
-const UserMapper = {
-    uid : null,
-    id : null,
-    loggedin : false,
-    modified_time : null,
-}
+function newUserMapper() {
+    return {
+        uid : null,
+        id : null,
+        loggedin : false,
+        modified_time : null,
+    };
+} 
 
 
 async function addUserMapper(userMapper) {
@@ -17,11 +19,11 @@ async function addUserMapper(userMapper) {
     }
 }
 
-async function getUserIdFromUid(uid) {
+async function getUserMapperFromUid(uid) {
     try {
         let userMapper = await dataAccess.findUserMapper(uid);
         if(userMapper !== null) {
-            return userMapper.id;
+            return userMapper;
         }
         else {
             return null;
@@ -63,9 +65,9 @@ async function deleteUserMapper(userMapper) {
 }
 
 module.exports = {
-    UserMapper,
+    newUserMapper,
     addUserMapper,
-    getUserIdFromUid,
+    getUserMapperFromUid,
     updateUserMapper,
     deleteUserMapper,
     getUserMapperFromId,

@@ -20,9 +20,5 @@ v1Router.get('/auth', function(req,res){
     res.status(200).send("Success");
 });
 
-v1Router.post('/logout', function(req, res){
-
-});
-
 
 module.exports = v1Router;

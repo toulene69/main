@@ -1,4 +1,4 @@
-
+const logger = require('../../../../config/logger');
 const bcrypt = require('bcrypt');
 const userAuthModel = require('../../../models/UserAuth');
 const userModel = require('../../../models/User');
@@ -18,21 +18,20 @@ schema
     .has().digits()
     .has().not().spaces();
 //.is().not().oneOf(['Passw0rd', 'Password123']);
-const result = {
-    success: false,
-    value: null,
-    message: null
-};
+
+function newResult(){
+    return {
+        success: false,
+        value: null,
+        message: null
+    };
+}
 
 const registerUser = async function registerUser(input) {
-    var email = input.email;
-    var password = input.password;
-    var phone = input.phone;
-    var mode = input.mode;
-    var errMsg = "";
-    var isErr = true;
-    let newUser = userModel.User;
-    let newUserAuth = userAuthModel.UserAuth;
+    var {email, password, phone, mode, } = input;
+    let newUser = userModel.newUser();
+    let newUserAuth = userAuthModel.newUserAuth();
+    let result = newResult();
     if (!mode) {
         result.success = false;
         result.message = "Please add registration mode";
@@ -53,17 +52,25 @@ const registerUser = async function registerUser(input) {
         result.message = "Improper registration mode";
         return result;
     }
-    newUser.username = input.username;
-    newUser.email = email;
-    newUser.gender = input.gender;
-    newUser.dob = input.dob;
-    newUser.location = input.location;
-    newUser.phonenumber = input.phonenumber;
-    newUser.mode = input.mode;
-    newUserAuth.username = input.username;
-    newUserAuth.email = email;
-    newUserAuth.phonenumber = input.phonenumber;
-    newUserAuth.mode = input.mode;
+    newUser = {
+        username : input.username,
+        email : email,
+        gender : input.gender,
+        dob : input.dob,
+        location : input.location,
+        phonenumber : input.phonenumber,
+        mode : input.mode,
+        modified_time : Date(),
+        created_time : Date(),
+    };
+    newUserAuth = {
+        username : input.username,
+        email : email,
+        phonenumber : input.phonenumber,
+        mode : input.mode,
+        modified_time : Date(),
+        created_time : Date(),
+    };
     if (mode == 'email') {
         try {
             let userExists = await userAuthModel.getUserAuth(newUserAuth.email);
@@ -107,6 +114,7 @@ const loginUser = async function (input) {
 };
 
 const emailBasedLogin = async function(email, password) {
+    let result = newResult();
     try {
         const userAuthRecord = await userAuthModel.getUserAuth(email);
         if (!userAuthRecord) {
@@ -121,11 +129,11 @@ const emailBasedLogin = async function(email, password) {
         const userRecord = await userModel.getUserFromAuth(userAuthRecord);
         var userMapperRecord = await userMapperModel.getUserMapperFromId(userRecord._id);
         if( userMapperRecord === null) {
-            userMapperRecord = userMapperModel.UserMapper;
+            userMapperRecord = userMapperModel.newUserMapper();
             userMapperRecord.id = userRecord._id;
         }
         userMapperRecord.uid = uuidv4();
-        userMapperRecord.modified_time = new Date();
+        userMapperRecord.modified_time = Date();
         userMapperRecord.loggedin = true;
         userMapperRecord = await userMapperModel.updateUserMapper(userMapperRecord);
         let token = auth_service.generateJWT(userMapperRecord.uid);
@@ -141,8 +149,40 @@ const emailBasedLogin = async function(email, password) {
     }
 }
 
+const logoutUser = async function(request) {
+    const user = request.user;
+    let result = newResult();
+    if(!user){
+        result.message = "User not present..";
+        return result;
+    }
+    try {
+        userMapper = await userMapperModel.getUserMapperFromId(user._id);
+        if(!userMapper) {
+            result.message = "User not present..";
+            return result;
+        }
+        userMapper.loggedin = false;
+        userMapper.modified_time = Date();
+        userMapper.uid = null;
+        let val = await userMapperModel.updateUserMapper(userMapper);
+        if(val) {
+            result.message = "Logged out successfully..";
+            result.success = true;
+        } else {
+            result.message = "Error while logout...";
+        }
+        return result;
+    } catch (e) {
+        result.message = "Some error occurred";
+        result.value = e;
+        logger.error(e);
+        return result;
+    }
+}
 
 module.exports = {
     loginUser,
     registerUser,
+    logoutUser,
 };

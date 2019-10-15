@@ -1,16 +1,18 @@
 const dataAccess = require('../dao/DataAccess');
 
-const User = {
-    authid : null,
-    username : null,
-    email : null,
-    phonenumber : null,
-    gender : null,
-    dob : null,
-    location : null,
-    mode : null,
-    modified_time : null,
-    created_time : null,
+function newUser() {
+    return {
+        authid : null,
+        username : null,
+        email : null,
+        phonenumber : null,
+        gender : null,
+        dob : null,
+        location : null,
+        mode : null,
+        modified_time : null,
+        created_time : null,
+    };   
 }
 
 const addUserAndUserAuth = async function(newUser, newUserAuth) {
@@ -42,7 +44,7 @@ const getUserFromId = async function(id) {
 
 
 module.exports = {
-    User,
+    newUser,
     addUserAndUserAuth,
     getUserFromAuth,
     getUserFromId,

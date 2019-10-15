@@ -16,13 +16,15 @@ jwtOptions.secretOrKey = '68f35c97-5e74-4f2c-820d-17f0f990800e';
 var strategy = new JwtStrategy(jwtOptions, async function(jwt_payload, next) {
     logger.info('payload received', jwt_payload);
     try {
-        let user_id = await userMapperModel.getUserIdFromUid(jwt_payload.uid);
-        if(!user_id) {
+        let userMapper = await userMapperModel.getUserMapperFromUid(jwt_payload.uid);
+        if(!userMapper || !userMapper.loggedin) {
             next(null, false);
+            return;
         }
-        let user = await userModel.getUserFromId(user_id);
+        let user = await userModel.getUserFromId(userMapper.id);
         if(!user) {
             next(null, false);
+            return;
         }
         next(null, user);
     } catch (e) {
@@ -38,16 +40,7 @@ function generateJWT(uid) {
     return token;
 }
 
-function isAuthenticated(req, res, next){
-    if(req.isAuthenticated()){
-        next();
-    }
-    else {
-        res.status(401).send("Unauthorized ....");
-    }
-}
 
 module.exports = {
     generateJWT,
-    isAuthenticated,
 }
