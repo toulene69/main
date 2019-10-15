@@ -2,10 +2,11 @@
 const bcrypt = require('bcrypt');
 const userAuthModel = require('../../../models/UserAuth');
 const userModel = require('../../../models/User');
-
+const userMapperModel = require('../../../models/UserMapper');
+const auth_service = require('../../../services/auth_service');
 const emailValidator = require('email-validator');
 const passwordValidator = require('password-validator');
-
+const uuidv4 = require('uuid/v4');
 const schema = new passwordValidator();
 
 // Add properties to it
@@ -95,32 +96,8 @@ const loginUser = async function (input) {
     var phone = input.phone;
     var mode = input.mode;
     if( mode == 'email') {
-        try {
-            const userAuthRecord = await userAuthModel.getUserAuth(email);
-            if (userAuthRecord) {
-                try {
-                    val = await bcrypt.compare(password, userAuthRecord.password);
-                    if(val) {
-                        const userRecord = await userModel.getUserFromAuth(userAuthRecord);
-                        result.success = true;
-                        result.message = "User logged in successfully";
-                        result.value = userRecord;
-                        return result;
-                    } else {
-                        result.message = "Incorrect password";
-                        return result;
-                    }
-                } catch (e) {
-                    result.message = "Error occured";
-                    result.value = e;
-                    return result;
-                }
-            }
-        } catch (e) {
-            result.message = "Error occured";
-            result.value = e;
-            return result;
-        }
+        let result = await emailBasedLogin(email, password);
+        return result; 
     } else if (mode == 'phone') {
 
     } else {
@@ -128,6 +105,42 @@ const loginUser = async function (input) {
         return result;
     }
 };
+
+const emailBasedLogin = async function(email, password) {
+    try {
+        const userAuthRecord = await userAuthModel.getUserAuth(email);
+        if (!userAuthRecord) {
+            result.message = "User not present";
+            return result;
+        }
+        val = await bcrypt.compare(password, userAuthRecord.password);
+        if(!val) {
+            result.message = "Incorrect password";
+            return result;
+        }
+        const userRecord = await userModel.getUserFromAuth(userAuthRecord);
+        var userMapperRecord = await userMapperModel.getUserMapperFromId(userRecord._id);
+        if( userMapperRecord === null) {
+            userMapperRecord = userMapperModel.UserMapper;
+            userMapperRecord.id = userRecord._id;
+        }
+        userMapperRecord.uid = uuidv4();
+        userMapperRecord.modified_time = new Date();
+        userMapperRecord.loggedin = true;
+        userMapperRecord = await userMapperModel.updateUserMapper(userMapperRecord);
+        let token = auth_service.generateJWT(userMapperRecord.uid);
+        result.success = true;
+        result.message = "User logged in successfully";
+        result.value = userRecord;
+        result.token = token;
+        return result;
+    } catch (e) {
+        result.message = "Error occured";
+        result.value = e;
+        return result;
+    }
+}
+
 
 module.exports = {
     loginUser,

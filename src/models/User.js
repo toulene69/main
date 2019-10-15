@@ -9,6 +9,8 @@ const User = {
     dob : null,
     location : null,
     mode : null,
+    modified_time : null,
+    created_time : null,
 }
 
 const addUserAndUserAuth = async function(newUser, newUserAuth) {
@@ -29,9 +31,19 @@ const getUserFromAuth = async function(userAuth) {
     }
 }
 
+const getUserFromId = async function(id) {
+    try {
+        let user = await dataAccess.findUserById(id);
+        return user;
+    } catch (e) {
+        throw e;
+    }
+}
+
 
 module.exports = {
     User,
     addUserAndUserAuth,
     getUserFromAuth,
+    getUserFromId,
 }

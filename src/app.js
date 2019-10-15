@@ -1,6 +1,9 @@
 const express = require('express');
 const app = express();
 const database = require('./db');
+const passport = require('passport');
+const auth_service = require('./services/auth_service');
+app.use(passport.initialize());
 
 // Logger setup
 const morgan = require('morgan');
