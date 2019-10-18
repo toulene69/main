@@ -28,7 +28,7 @@ function newResult(){
 }
 
 const registerUser = async function registerUser(input) {
-    var {email, password, phone, mode, } = input;
+    var {email, password, phonenumber, mode, } = input;
     let newUser = userModel.newUser();
     let newUserAuth = userAuthModel.newUserAuth();
     let result = newResult();
@@ -85,6 +85,7 @@ const registerUser = async function registerUser(input) {
         } catch (e) {
             result.message = "Error while registration";
             result.value = e;
+            logger.error(e);
             return result;
         }
     }
@@ -145,6 +146,7 @@ const emailBasedLogin = async function(email, password) {
     } catch (e) {
         result.message = "Error occured";
         result.value = e;
+        logger.error(e);
         return result;
     }
 }

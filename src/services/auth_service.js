@@ -28,6 +28,7 @@ var strategy = new JwtStrategy(jwtOptions, async function(jwt_payload, next) {
         }
         next(null, user);
     } catch (e) {
+        logger.error(e);
         next(e, false);
     }
 });

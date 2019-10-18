@@ -4,6 +4,9 @@ const logger = require('../../config/logger');
 const account = require('./v1/lib/account');
 const passport = require('passport');
 
+const v1_regions = require('./v1/v1_regions');
+api_router.use('/v1/region/',v1_regions);
+
 const v1_router = require('./v1/v1_router');
 api_router.use('/v1/',passport.authenticate('jwt', { session : false }),v1_router);
 
