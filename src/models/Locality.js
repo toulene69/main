@@ -1,3 +1,4 @@
+//@ts-check
 const RegionDao = require('../dao/RegionDao');
 
 function newLocality(obj) {
@@ -32,6 +33,11 @@ function newPointLocation(lat,long) {
     };
 }
 
+/**
+ * 
+ * @param {number} latitude 
+ * @param {number} longitude 
+ */
 const getLocality = async function(latitude, longitude) {
     var pointLocation = newPointLocation(latitude, longitude);
     try {

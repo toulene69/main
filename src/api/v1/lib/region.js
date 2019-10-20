@@ -1,3 +1,4 @@
+//@ts-check
 const localityModel = require('../../../models/Locality');
 
 function newResult(){
